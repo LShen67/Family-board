@@ -142,7 +142,7 @@
         <p class="label">ECF rapid rating</p>
         <p id="chessName" class="chess-name">Loading…</p>
       </td>
-      <td class="right"><span id="chessNow" class="chess-now"></span><span id="chessChange" class="chess-change"></span></td>
+      <td class="right"><span id="chessNow" class="chess-now"></span><span id="chessChange" class="chess-change"></span><p id="chessMonth" class="m-month"></p></td>
     </tr></table>
     <div id="months" class="months"></div>
     <p id="chessNote" class="note"></p>
@@ -349,6 +349,7 @@
     var r = data.rapid;
     $('chessName').innerHTML = data.name;
     $('chessNow').innerHTML = num(r[0].rating);
+    $('chessMonth').innerHTML = r[0].month;
     if (r.length > 1) {
       var diff = num(r[0].rating) - num(r[1].rating);
       var el = $('chessChange');
@@ -356,7 +357,8 @@
       el.className = 'chess-change ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : '');
     }
     var html = '<table><tr>';
-    for (var i = r.length - 1; i >= 0; i--) {
+    // Current month is shown large above; list the previous months here
+    for (var i = r.length - 1; i >= 1; i--) {
       html += '<td' + (i === r.length - 1 ? ' class="first"' : '') + '><p class="m-rating">' + num(r[i].rating) + '</p><p class="m-month">' + r[i].month + '</p></td>';
     }
     $('months').innerHTML = html + '</tr></table>';
