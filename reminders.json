@@ -10,6 +10,7 @@
   { "title": "Mum's birthday", "date": "2027-08-04", "repeat": "yearly", "remind_days": 7 },
   { "title": "Motor insurance check", "date": "2027-08-04", "repeat": "yearly", "remind_days": 7 },
   { "title": "Louis's birthday", "date": "2027-09-08", "repeat": "yearly", "remind_days": 14 },
+  { "title": "Jing's birthday", "date": "2027-09-22", "repeat": "yearly", "remind_days": 7 },
   { "title": "Anniversary (纪念日)", "date": "2027-10-14", "repeat": "yearly", "remind_days": 14 },
   { "title": "辉哥", "date": "2027-10-18", "repeat": "yearly", "remind_days": 1 }
 ]
