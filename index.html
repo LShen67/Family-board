@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Family board">
+<title>Family board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #D9E9F2;
+    --card: #FFFFFF;
+    --ink: #22325A;
+    --soft: #5A6B8C;
+    --panel: #22325A;
+    --panel-ink: #F4F7FB;
+    --face: #FFFFFF;
+    --face-ink: #22325A;
+    --line: #DCE6EE;
+    --sun: #F2B632;
+  }
+  body.night {
+    --bg: #121933;
+    --card: #1E2848;
+    --ink: #E4EAF6;
+    --soft: #9AA8C6;
+    --panel: #0B1029;
+    --panel-ink: #C9D2E6;
+    --face: #CFD8EA;
+    --face-ink: #1B2546;
+    --line: #2D3961;
+  }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Fredoka", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+  }
+  p { margin: 0; }
+
+  .board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "clock weather";
+    height: 100vh;
+  }
+
+  /* Clock */
+  .clock-panel {
+    grid-area: clock;
+    background: var(--panel);
+    color: var(--panel-ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+  }
+  #clock { width: 360px; height: 360px; max-width: 100%; }
+  .face { fill: var(--face); }
+  .tick { stroke: var(--face-ink); stroke-width: 1; opacity: 0.35; }
+  .tick.major { stroke-width: 3; opacity: 0.9; stroke-linecap: round; }
+  .num { fill: var(--face-ink); font-size: 17px; font-weight: 600; text-anchor: middle; font-family: inherit; }
+  .hand { stroke-linecap: round; }
+  .hour { stroke: var(--face-ink); stroke-width: 7; }
+  .minute { stroke: #2E7FC1; stroke-width: 4.5; }
+  .second { stroke: #E0A21B; stroke-width: 2; }
+  .pin { fill: var(--face-ink); }
+  .digital { font-size: 64px; font-weight: 600; line-height: 1; margin-top: 18px; }
+  .words { font-size: 26px; margin-top: 8px; }
+  .date { font-size: 24px; margin-top: 18px; opacity: 0.8; }
+
+  /* Weather */
+  .weather {
+    grid-area: weather;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 32px 40px;
+  }
+  .wx-now { display: flex; align-items: center; margin-bottom: 20px; }
+  .wx-icon { font-size: 110px; line-height: 1; margin-right: 12px; }
+  .wx-temp { font-size: 120px; font-weight: 600; line-height: 1; }
+  .wx-desc { font-size: 34px; font-weight: 500; }
+  .wx-range { font-size: 24px; margin-top: 6px; color: var(--soft); }
+  .wx-tip {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 26px;
+    background: var(--sun);
+    color: #2A2208;
+    border-radius: 999px;
+    padding: 8px 20px;
+  }
+  .wx-tip:empty { display: none; }
+  .wx-credit { font-size: 13px; margin-top: 24px; color: var(--soft); }
+  .wx-credit a { color: inherit; }
+
+  /* Portrait */
+  @media (orientation: portrait) {
+    .board { grid-template-columns: 1fr; grid-template-rows: auto 1fr; grid-template-areas: "clock" "weather"; }
+    #clock { width: 300px; height: 300px; }
+  }
+</style>
+</head>
+<body class="day">
+<main class="board">
+  <section class="clock-panel">
+    <svg id="clock" viewBox="0 0 200 200" role="img" aria-label="Clock">
+      <circle cx="100" cy="100" r="96" class="face"></circle>
+      <g id="ticks"></g>
+      <g id="numbers"></g>
+      <line id="hourHand" x1="100" y1="100" x2="100" y2="55" class="hand hour"></line>
+      <line id="minuteHand" x1="100" y1="100" x2="100" y2="26" class="hand minute"></line>
+      <line id="secondHand" x1="100" y1="112" x2="100" y2="20" class="hand second"></line>
+      <circle cx="100" cy="100" r="5" class="pin"></circle>
+    </svg>
+    <p id="digital" class="digital">--:--</p>
+    <p id="words" class="words"></p>
+    <p id="date" class="date"></p>
+  </section>
+
+  <section class="weather">
+    <div class="wx-now">
+      <span id="wxIcon" class="wx-icon">⏳</span>
+      <span id="wxTemp" class="wx-temp"></span>
+    </div>
+    <div>
+      <p id="wxDesc" class="wx-desc">Loading the weather…</p>
+      <p id="wxRange" class="wx-range"></p>
+      <p id="wxTip" class="wx-tip"></p>
+      <p class="wx-credit">Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a></p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ===== Edit these settings ===== */
+  var CONFIG = {
+    place: 'Westminster',
+    latitude: 51.4975,
+    longitude: -0.1357,
+    nightFrom: 19,      // dark theme from 7pm
+    nightUntil: 7       // until 7am
+  };
+  /* =============================== */
+
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var HOURS = ['twelve', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven'];
+
+  function $(id) { return document.getElementById(id); }
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+  /* ---------- Clock ---------- */
+  function buildClock() {
+    var ticks = $('ticks');
+    var numbers = $('numbers');
+    for (var i = 0; i < 60; i++) {
+      var major = i % 5 === 0;
+      var l = document.createElementNS(SVGNS, 'line');
+      l.setAttribute('x1', '100');
+      l.setAttribute('y1', '8');
+      l.setAttribute('x2', '100');
+      l.setAttribute('y2', major ? '18' : '13');
+      l.setAttribute('class', major ? 'tick major' : 'tick');
+      l.setAttribute('transform', 'rotate(' + (i * 6) + ' 100 100)');
+      ticks.appendChild(l);
+    }
+    for (var n = 1; n <= 12; n++) {
+      var a = n * 30 * Math.PI / 180;
+      var t = document.createElementNS(SVGNS, 'text');
+      t.setAttribute('x', String(100 + 68 * Math.sin(a)));
+      t.setAttribute('y', String(100 - 68 * Math.cos(a) + 6));
+      t.setAttribute('class', 'num');
+      t.textContent = String(n);
+      numbers.appendChild(t);
+    }
+  }
+
+  function rotate(id, deg) {
+    $(id).setAttribute('transform', 'rotate(' + deg + ' 100 100)');
+  }
+
+  function timeWords(d) {
+    var h = d.getHours();
+    var m = d.getMinutes();
+    var r = Math.round(m / 5) * 5;
+    if (r === 60) { r = 0; h += 1; }
+    var prefix = r === m ? '' : 'About ';
+    var phrase;
+    if (r === 0) {
+      phrase = HOURS[h % 12] + ' o’clock';
+    } else if (r <= 30) {
+      var past = { 5: 'five', 10: 'ten', 15: 'quarter', 20: 'twenty', 25: 'twenty-five', 30: 'half' }[r];
+      phrase = past + ' past ' + HOURS[h % 12];
+    } else {
+      var to = { 35: 'twenty-five', 40: 'twenty', 45: 'quarter', 50: 'ten', 55: 'five' }[r];
+      phrase = to + ' to ' + HOURS[(h + 1) % 12];
+    }
+    var s = prefix + phrase;
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  /* ---------- Tick ---------- */
+  function tick() {
+    var d = new Date();
+    var h = d.getHours();
+    var m = d.getMinutes();
+    var s = d.getSeconds();
+
+    rotate('hourHand', (h % 12) * 30 + m * 0.5);
+    rotate('minuteHand', m * 6 + s * 0.1);
+    rotate('secondHand', s * 6);
+
+    $('digital').textContent = h + ':' + pad(m);
+    $('words').textContent = timeWords(d);
+    $('date').textContent = DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()];
+
+    var night = h >= CONFIG.nightFrom || h < CONFIG.nightUntil;
+    var theme = night ? 'night' : 'day';
+    if (document.body.className !== theme) { document.body.className = theme; }
+  }
+
+  /* ---------- Weather ---------- */
+  function describe(code, isDay) {
+    if (code === 0) { return isDay ? ['☀️', 'Sunny'] : ['🌙', 'Clear']; }
+    if (code === 1 || code === 2) { return isDay ? ['⛅', 'Some cloud'] : ['☁️', 'Some cloud']; }
+    if (code === 3) { return ['☁️', 'Cloudy']; }
+    if (code === 45 || code === 48) { return ['🌫️', 'Foggy']; }
+    if (code >= 51 && code <= 57) { return ['🌦️', 'Drizzle']; }
+    if (code >= 61 && code <= 67) { return ['🌧️', 'Rain']; }
+    if (code >= 71 && code <= 77) { return ['❄️', 'Snow']; }
+    if (code >= 80 && code <= 82) { return ['🌦️', 'Showers']; }
+    if (code === 85 || code === 86) { return ['🌨️', 'Snow showers']; }
+    if (code >= 95) { return ['⛈️', 'Thunderstorms']; }
+    return ['🌡️', 'Weather'];
+  }
+
+  function tipFor(dayCode, hi, lo, rain) {
+    if ((dayCode >= 71 && dayCode <= 77) || dayCode === 85 || dayCode === 86) { return 'Snow today. Hats and gloves!'; }
+    if (rain !== null && rain >= 50) { return 'Rain likely. Take an umbrella.'; }
+    if (lo <= 2) { return 'Frosty. Hats and gloves.'; }
+    if (hi < 10) { return 'Chilly. Wear a warm coat.'; }
+    if (hi >= 22) { return 'Warm. Sun cream on.'; }
+    return 'Jacket weather.';
+  }
+
+  function showWeather(data) {
+    var c = data.current;
+    var day = data.daily;
+    var now = describe(c.weather_code, c.is_day === 1);
+    var hi = Math.round(day.temperature_2m_max[0]);
+    var lo = Math.round(day.temperature_2m_min[0]);
+    var rain = day.precipitation_probability_max ? day.precipitation_probability_max[0] : null;
+
+    $('wxIcon').textContent = now[0];
+    $('wxTemp').textContent = Math.round(c.temperature_2m) + '°';
+    $('wxDesc').textContent = now[1] + ' in ' + CONFIG.place;
+    $('wxRange').textContent = 'Today ' + lo + '° to ' + hi + '°' + (rain !== null ? ', ' + rain + '% chance of rain' : '');
+    $('wxTip').textContent = tipFor(day.weather_code[0], hi, lo, rain);
+  }
+
+  function weatherError() {
+    $('wxIcon').textContent = '📡';
+    $('wxTemp').textContent = '';
+    $('wxDesc').textContent = 'Weather unavailable';
+    $('wxRange').textContent = 'Check the iPad’s Wi-Fi. Trying again in 5 minutes.';
+    $('wxTip').textContent = '';
+    setTimeout(loadWeather, 5 * 60 * 1000);
+  }
+
+  function loadWeather() {
+    var url = 'https://api.open-meteo.com/v1/forecast' +
+      '?latitude=' + CONFIG.latitude +
+      '&longitude=' + CONFIG.longitude +
+      '&current=temperature_2m,weather_code,is_day' +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max' +
+      '&timezone=Europe%2FLondon&forecast_days=1';
+    var xhr = new XMLHttpRequest();
+    var finished = false;
+    function fail() { if (!finished) { finished = true; weatherError(); } }
+    xhr.open('GET', url, true);
+    xhr.timeout = 15000;
+    xhr.onload = function () {
+      if (finished) { return; }
+      if (xhr.status === 200) {
+        try {
+          showWeather(JSON.parse(xhr.responseText));
+          finished = true;
+          setTimeout(loadWeather, 15 * 60 * 1000);
+          return;
+        } catch (e) {}
+      }
+      fail();
+    };
+    xhr.onerror = fail;
+    xhr.ontimeout = fail;
+    xhr.send();
+  }
+
+  /* ---------- Fresh start at 3am each day ---------- */
+  function scheduleReload() {
+    var now = new Date();
+    var next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (now.getHours() >= 3 ? 1 : 0), 3, 0, 5);
+    setTimeout(function () { window.location.reload(); }, next.getTime() - now.getTime());
+  }
+
+  buildClock();
+  tick();
+  setInterval(tick, 1000);
+  loadWeather();
+  scheduleReload();
+})();
+</script>
+</body>
+</html>
