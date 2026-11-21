@@ -3,7 +3,7 @@
 A simple always-on kitchen display for an old iPad mini 2. It shows:
 
 - a large digital clock and the date
-- an hour-by-hour forecast for the next 8 hours in Westminster, London, with a short tip (umbrella, coat and so on)
+- a forecast every 3 hours for the next 24 hours (8 boxes) in Westminster, London, with a short tip (umbrella, coat and so on)
 - Louis Shen's ECF rapid rating for the last three months
 - a darker theme from 7pm to 7am
 

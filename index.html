@@ -150,7 +150,7 @@
 
   <section class="card hours">
     <table class="hours-head"><tr>
-      <td><p class="label" id="hoursTitle">Next 8 hours</p></td>
+      <td><p class="label" id="hoursTitle">Forecast</p></td>
       <td class="right"><p id="wxTip" class="wx-tip"></p></td>
     </tr></table>
     <div id="hourRow"><p class="msg">Loading the weather…</p></div>
@@ -167,7 +167,8 @@
     place: 'Westminster',
     latitude: 51.4975,
     longitude: -0.1357,
-    hours: 8,           // hourly forecast slots
+    hours: 8,           // forecast boxes
+    step: 3,            // hours between boxes
     nightFrom: 19,      // dark theme from 7pm (iPad only)
     nightUntil: 7,      // until 7am
 
@@ -297,7 +298,9 @@
 
     var cells = [];
     var maxRain = 0, minT = 99, maxT = -99;
-    for (var i = start; i < start + CONFIG.hours && i < hr.time.length; i++) {
+    for (var n = 0; n < CONFIG.hours; n++) {
+      var i = start + n * CONFIG.step;
+      if (i >= hr.time.length) { break; }
       var t = Math.round(hr.temperature_2m[i]);
       var rain = hr.precipitation_probability[i] || 0;
       if (rain > maxRain) { maxRain = rain; }
@@ -321,7 +324,7 @@
       html += '</tr>';
     }
     $('hourRow').innerHTML = html + '</table>';
-    $('hoursTitle').innerHTML = 'Next ' + CONFIG.hours + ' hours · ' + CONFIG.place + ' · now ' + Math.round(data.current.temperature_2m) + '°';
+    $('hoursTitle').innerHTML = 'Every ' + CONFIG.step + ' hours · ' + CONFIG.place + ' · now ' + Math.round(data.current.temperature_2m) + '°';
     $('wxTip').innerHTML = tipFor(maxRain, minT, maxT);
   }
 
