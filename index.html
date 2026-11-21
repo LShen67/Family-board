@@ -382,8 +382,17 @@
     setTimeout(function () { window.location.reload(); }, next.getTime() - now.getTime());
   }
 
+  // Older browsers (Kindle) draw the page very wide and shrink it, so text looks tiny.
+  // Scale everything up so the layout is about 760px wide on screen.
+  function fitOldScreen() {
+    if (MODERN) { return; }
+    var w = document.documentElement.clientWidth || window.innerWidth || 0;
+    if (w > 800) { document.body.style.zoom = (w / 760).toFixed(2); }
+  }
+  fitOldScreen();
+
   // Redraw the forecast grid when the screen is turned
-  window.onresize = function () { if (lastWeather) { showWeather(lastWeather); } };
+  window.onresize = function () { fitOldScreen(); if (lastWeather) { showWeather(lastWeather); } };
 
   tick();
   setInterval(tick, 1000);
