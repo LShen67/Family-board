@@ -373,12 +373,16 @@
   var REMINDER_WINDOW = 60;   // show dates coming up within this many days
   var reminderList = [];
 
+  // Next occurrence on or after today. repeat: "yearly" (default), "quarterly" or "none".
   function daysUntil(item, today) {
     var p = item.date.split('-');
     var y, m, d;
-    if (p.length === 3) { y = +p[0]; m = +p[1]; d = +p[2]; } else { m = +p[0]; d = +p[1]; y = new Date(today).getFullYear(); }
-    var t = new Date(y, m - 1, d).getTime();
-    if (item.yearly && t < today) { t = new Date(y + 1, m - 1, d).getTime(); }
+    if (p.length === 3) { y = +p[0]; m = +p[1] - 1; d = +p[2]; } else { y = new Date(today).getFullYear(); m = +p[0] - 1; d = +p[1]; }
+    var repeat = item.repeat || (item.yearly === false ? 'none' : 'yearly');
+    var step = repeat === 'quarterly' ? 3 : repeat === 'yearly' ? 12 : 0;
+    var t = new Date(y, m, d).getTime();
+    var guard = 0;
+    while (step && t < today && guard++ < 400) { m += step; t = new Date(y, m, d).getTime(); }
     return Math.round((t - today) / 86400000);
   }
 
@@ -388,13 +392,14 @@
     var up = [];
     for (var i = 0; i < reminderList.length; i++) {
       var days = daysUntil(reminderList[i], today);
-      if (days >= 0 && days <= REMINDER_WINDOW) { up.push({ r: reminderList[i], days: days }); }
+      if (days >= 0 && days <= Math.max(REMINDER_WINDOW, reminderList[i].remind_days || 0)) { up.push({ r: reminderList[i], days: days }); }
     }
     up.sort(function (a, b) { return a.days - b.days; });
     var html = '';
     for (var j = 0; j < up.length && j < 3; j++) {
       var it = up[j];
-      var soon = it.days <= (it.r.remind_days || 7);
+      var lead = it.r.remind_days === undefined ? 7 : it.r.remind_days;
+      var soon = it.days <= Math.max(lead, 1);
       var when = it.days === 0 ? 'today!' : it.days === 1 ? 'tomorrow' : 'in ' + it.days + ' days';
       html += '<p' + (soon ? ' class="soon"' : '') + '>' + (MODERN ? '🔔 ' : '') + it.r.title + ' ' + when + '</p>';
     }

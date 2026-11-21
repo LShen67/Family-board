@@ -40,14 +40,15 @@ var CONFIG = {
 Edit `reminders.json`. Each entry:
 
 ```json
-{ "title": "Dentist", "date": "2027-01-15", "remind_days": 3 }
-{ "title": "Grandma's birthday", "date": "03-14", "yearly": true, "remind_days": 7 }
+{ "title": "Mum's birthday", "date": "2027-08-04", "repeat": "yearly", "remind_days": 7 }
+{ "title": "Dishwasher clean", "date": "2027-02-18", "repeat": "quarterly", "remind_days": 0 }
 ```
 
-- `date`: `YYYY-MM-DD` for a one-off date, or `MM-DD` with `"yearly": true` for every year.
-- `remind_days`: how many days before to start reminding (default 7).
-- The board shows the next 3 dates within 60 days, in bold once inside the reminder window.
-- Every morning a GitHub job opens an issue labelled `reminder` when a date is `remind_days` away, the day before and on the day. GitHub notifies you by email or in the GitHub app (depending on your notification settings).
+- `date`: the first (or next) date, `YYYY-MM-DD`.
+- `repeat`: `yearly` (default), `quarterly` (every 3 months) or `none`.
+- `remind_days`: days before to remind (0 = on the day only; default 7).
+- The board shows the next 3 dates (within 60 days, or within `remind_days` if longer), in bold once the reminder is due.
+- Every morning a GitHub job opens an issue labelled `reminder` when a date is `remind_days` away and again on the day. GitHub notifies you by email or in the GitHub app (depending on your notification settings).
 
 ## Publishing with GitHub Pages
 

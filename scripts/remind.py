@@ -24,25 +24,31 @@ def call(method, path, body=None):
         return json.load(r)
 
 
+def add_months(d, n):
+    m = d.month - 1 + n
+    return date(d.year + m // 12, m % 12 + 1, d.day)
+
+
 def next_date(item, today):
+    """Next occurrence on or after today. repeat: yearly (default), quarterly or none."""
     parts = [int(x) for x in item["date"].split("-")]
-    if len(parts) == 3:
-        return date(*parts)
-    d = date(today.year, parts[0], parts[1])
-    if item.get("yearly") and d < today:
-        d = date(today.year + 1, parts[0], parts[1])
+    d = date(*parts) if len(parts) == 3 else date(today.year, parts[0], parts[1])
+    repeat = item.get("repeat") or ("none" if item.get("yearly") is False else "yearly")
+    step = {"quarterly": 3, "yearly": 12}.get(repeat, 0)
+    while step and d < today:
+        d = add_months(d, step)
     return d
 
 
 def main():
     today = date.today()
-    items = json.load(open("reminders.json"))
+    items = json.load(open("reminders.json", encoding="utf-8"))
     existing = {i["title"] for i in call("GET", "/issues?state=all&labels=reminder&per_page=100")}
     for item in items:
         when = next_date(item, today)
         days = (when - today).days
         lead = item.get("remind_days", 7)
-        if days not in (lead, 1, 0):
+        if days not in (lead, 0):  # once in advance, and again on the day
             continue
         label = "today" if days == 0 else "tomorrow" if days == 1 else "in %d days" % days
         title = "Reminder: %s %s (%s)" % (item["title"], label, when.strftime("%a %-d %b %Y"))
