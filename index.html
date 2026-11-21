@@ -34,11 +34,15 @@
 
   .clock { text-align: center; }
   .time { font-size: 104px; font-weight: 600; line-height: 1; }
-  .secs { font-size: 40px; color: #666666; margin-left: 4px; }
   .date { font-size: 30px; margin-top: 8px; }
   .countdowns { margin-top: 12px; font-size: 20px; color: #444444; }
   .countdowns p { margin-top: 4px; }
   .countdowns b { font-weight: 600; color: #111111; }
+  .stats { margin-top: 14px; }
+  .stats td { border-top: 1px solid #BBBBBB; padding-top: 8px; }
+  .stats td.first-not { border-left: 1px solid #BBBBBB; }
+  .s-label { font-size: 15px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #555555; }
+  .s-value { font-size: 34px; font-weight: 600; line-height: 1.1; }
 
   .label { font-size: 16px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #555555; }
   .chess-top td { text-align: left; vertical-align: bottom; }
@@ -95,9 +99,10 @@
     .card { background: var(--card); border: 0; border-radius: 20px; padding: 20px 24px; box-sizing: border-box; }
     .clock { grid-area: clock; background: var(--panel); color: var(--panel-ink); display: flex; flex-direction: column; justify-content: center; }
     .time { font-size: 128px; font-variant-numeric: tabular-nums; }
-    .secs { color: inherit; opacity: 0.6; }
     .countdowns, .countdowns b { color: inherit; }
     .countdowns { font-size: 18px; opacity: 0.8; }
+    .stats td { border-color: rgba(255,255,255,0.25); }
+    .s-label { color: inherit; opacity: 0.7; }
     .chess { grid-area: chess; display: flex; flex-direction: column; justify-content: center; }
     .label, .m-month, .note, .h-time, .h-rain, .msg, .credit { color: var(--soft); }
     .months td, .hour-table td { border-color: var(--line); }
@@ -122,9 +127,13 @@
 <body class="day">
 <main class="board">
   <section class="card clock">
-    <p class="time"><span id="time">--:--</span><span id="secs" class="secs"></span></p>
+    <p class="time"><span id="time">--:--</span></p>
     <p id="date" class="date"></p>
     <div id="countdowns" class="countdowns"></div>
+    <table class="stats"><tr>
+      <td><p class="s-label">Digs</p><p id="digs" class="s-value"></p></td>
+      <td class="first-not"><p class="s-label">Bank account</p><p id="bank" class="s-value"></p></td>
+    </tr></table>
   </section>
 
   <section class="card chess">
@@ -160,7 +169,11 @@
     longitude: -0.1357,
     hours: 8,           // hourly forecast slots
     nightFrom: 19,      // dark theme from 7pm (iPad only)
-    nightUntil: 7       // until 7am
+    nightUntil: 7,      // until 7am
+
+    /* Update these two numbers by hand */
+    digs: 40,
+    bank: 113.00        // pounds
   };
 
   /* Holiday countdowns. Each date is the first day off (year, month 1-12, day). */
@@ -224,7 +237,6 @@
     var d = new Date();
     var h = d.getHours();
     $('time').innerHTML = pad(h) + ':' + pad(d.getMinutes());
-    $('secs').innerHTML = pad(d.getSeconds());
     $('date').innerHTML = DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
     if (MODERN) {
       var theme = (h >= CONFIG.nightFrom || h < CONFIG.nightUntil) ? 'night' : 'day';
@@ -373,6 +385,8 @@
 
   tick();
   setInterval(tick, 1000);
+  $('digs').innerHTML = CONFIG.digs;
+  $('bank').innerHTML = '£' + CONFIG.bank.toFixed(2);
   countdowns();
   setInterval(countdowns, 10 * 60 * 1000);
   loadWeather();
