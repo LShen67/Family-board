@@ -45,17 +45,17 @@
   .s-value { font-size: 68px; font-weight: 600; line-height: 1.05; }
 
   .label { font-size: 16px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #555555; }
-  .chess-top td { text-align: left; vertical-align: bottom; }
-  .chess-top td.right { text-align: right; }
+  .chess-top { text-align: center; }
+  .chess-big { margin-top: 6px; }
   .chess-name { font-size: 30px; font-weight: 600; margin-top: 4px; }
-  .chess-now { font-size: 64px; font-weight: 600; line-height: 1; }
+  .chess-now { font-size: 80px; font-weight: 600; line-height: 1; }
   .chess-change { font-size: 24px; margin-left: 8px; }
   .months { margin-top: 10px; }
   .months td { padding-top: 6px; border-left: 1px solid #BBBBBB; }
   .months td.first { border-left: 0; }
   .m-rating { font-size: 30px; font-weight: 600; }
   .m-month { font-size: 18px; color: #555555; }
-  .note { font-size: 13px; color: #666666; margin-top: 8px; }
+  .note { font-size: 13px; color: #666666; margin-top: 8px; text-align: center; }
 
   .hours-head td { text-align: left; vertical-align: middle; }
   .hours-head td.right { text-align: right; }
@@ -137,13 +137,11 @@
   </section>
 
   <section class="card chess">
-    <table class="chess-top"><tr>
-      <td>
-        <p class="label">ECF rapid rating</p>
-        <p id="chessName" class="chess-name">Loading…</p>
-      </td>
-      <td class="right"><span id="chessNow" class="chess-now"></span><span id="chessChange" class="chess-change"></span><p id="chessMonth" class="m-month"></p></td>
-    </tr></table>
+    <div class="chess-top">
+      <p class="label"><span id="chessName">Loading…</span> · ECF rapid rating</p>
+      <p class="chess-big"><span id="chessNow" class="chess-now"></span><span id="chessChange" class="chess-change"></span></p>
+      <p id="chessMonth" class="m-month"></p>
+    </div>
     <div id="months" class="months"></div>
     <p id="chessNote" class="note"></p>
   </section>
@@ -386,11 +384,11 @@
   }
 
   // Older browsers (Kindle) draw the page very wide and shrink it, so text looks tiny.
-  // Scale everything up so the layout is about 760px wide on screen.
+  // Scale everything up so the layout is about 800px wide on screen.
   function fitOldScreen() {
     if (MODERN) { return; }
     var w = document.documentElement.clientWidth || window.innerWidth || 0;
-    if (w > 800) { document.body.style.zoom = (w / 760).toFixed(2); }
+    if (w > 800) { document.body.style.zoom = (w / 800).toFixed(2); }
   }
   fitOldScreen();
 
