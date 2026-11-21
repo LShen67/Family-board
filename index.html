@@ -10,112 +10,112 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #D9E9F2;
-    --card: #FFFFFF;
-    --ink: #22325A;
-    --soft: #5A6B8C;
-    --panel: #22325A;
-    --panel-ink: #F4F7FB;
-    --line: #DCE6EE;
-    --sun: #F2B632;
-    --up: #2E8B57;
-    --down: #C0392B;
-  }
-  body.night {
-    --bg: #121933;
-    --card: #1E2848;
-    --ink: #E4EAF6;
-    --soft: #9AA8C6;
-    --panel: #0B1029;
-    --panel-ink: #C9D2E6;
-    --line: #2D3961;
-    --up: #6FCF97;
-    --down: #F28B82;
-  }
-  html, body { height: 100%; margin: 0; }
+  /*
+    Two layers:
+    1. Basic styles below work on old browsers (Kindle): tables, plain colours, no emoji.
+    2. The @supports block adds the iPad look (grid, colour themes, full-screen).
+       Old browsers don't understand @supports, so they skip it.
+  */
+  html, body { margin: 0; padding: 0; }
   body {
-    background: var(--bg);
-    color: var(--ink);
+    background: #FFFFFF;
+    color: #111111;
     font-family: "Fredoka", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
     -webkit-user-select: none;
-    user-select: none;
     -webkit-tap-highlight-color: transparent;
-    overflow: hidden;
   }
   p { margin: 0; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  td { text-align: center; vertical-align: top; padding: 0; }
 
-  .board {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
-    grid-template-areas: "clock chess" "hours hours";
-    gap: 16px;
-    height: 100vh;
-    padding: 16px;
-    box-sizing: border-box;
-  }
-  .card { background: var(--card); border-radius: 20px; padding: 20px 24px; box-sizing: border-box; }
+  .board { padding: 12px 16px; }
+  .card { padding: 14px 0; border-bottom: 2px solid #999999; }
+  .card.hours { border-bottom: 0; }
 
-  /* Clock */
-  .clock {
-    grid-area: clock;
-    background: var(--panel);
-    color: var(--panel-ink);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .time { font-size: 128px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
-  .secs { font-size: 48px; opacity: 0.6; margin-left: 6px; }
-  .date { font-size: 30px; margin-top: 12px; opacity: 0.85; }
-  .countdowns { margin-top: 16px; font-size: 18px; opacity: 0.8; }
+  .clock { text-align: center; }
+  .time { font-size: 104px; font-weight: 600; line-height: 1; }
+  .secs { font-size: 40px; color: #666666; margin-left: 4px; }
+  .date { font-size: 30px; margin-top: 8px; }
+  .countdowns { margin-top: 12px; font-size: 20px; color: #444444; }
   .countdowns p { margin-top: 4px; }
-  .countdowns b { font-weight: 600; }
+  .countdowns b { font-weight: 600; color: #111111; }
 
-  /* Chess */
-  .chess { grid-area: chess; display: flex; flex-direction: column; justify-content: center; }
-  .label { font-size: 16px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); }
+  .label { font-size: 16px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #555555; }
+  .chess-top td { text-align: left; vertical-align: bottom; }
+  .chess-top td.right { text-align: right; }
   .chess-name { font-size: 30px; font-weight: 600; margin-top: 4px; }
-  .chess-now { font-size: 72px; font-weight: 600; line-height: 1.05; margin-top: 4px; }
-  .chess-change { font-size: 26px; margin-left: 10px; }
-  .up { color: var(--up); }
-  .down { color: var(--down); }
-  .months { display: flex; margin-top: 12px; border-top: 2px solid var(--line); padding-top: 10px; }
-  .month { flex: 1; text-align: center; }
-  .month b { display: block; font-size: 30px; font-weight: 600; }
-  .month span { font-size: 18px; color: var(--soft); }
-  .note { font-size: 13px; color: var(--soft); margin-top: 10px; }
+  .chess-now { font-size: 64px; font-weight: 600; line-height: 1; }
+  .chess-change { font-size: 24px; margin-left: 8px; }
+  .months { margin-top: 10px; }
+  .months td { padding-top: 6px; border-left: 1px solid #BBBBBB; }
+  .months td.first { border-left: 0; }
+  .m-rating { font-size: 30px; font-weight: 600; }
+  .m-month { font-size: 18px; color: #555555; }
+  .note { font-size: 13px; color: #666666; margin-top: 8px; }
 
-  /* Hourly forecast */
-  .hours { grid-area: hours; display: flex; flex-direction: column; }
-  .hours-head { display: flex; justify-content: space-between; align-items: baseline; }
-  .wx-tip { font-size: 20px; background: var(--sun); color: #2A2208; border-radius: 999px; padding: 4px 16px; }
-  .wx-tip:empty { display: none; }
-  .hour-row { display: flex; flex: 1; margin-top: 10px; }
-  .hour {
-    flex: 1;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    border-left: 2px solid var(--line);
-  }
-  .hour:first-child { border-left: 0; }
-  .h-time { font-size: 24px; color: var(--soft); }
-  .h-icon { font-size: 52px; line-height: 1.2; }
-  .h-temp { font-size: 40px; font-weight: 600; }
-  .h-rain { font-size: 20px; color: var(--soft); }
-  .msg { font-size: 26px; margin: auto; color: var(--soft); }
-  .credit { font-size: 13px; color: var(--soft); margin-top: 6px; }
+  .hours-head td { text-align: left; vertical-align: middle; }
+  .hours-head td.right { text-align: right; }
+  .wx-tip { font-size: 18px; font-weight: 600; }
+  .hour-table { margin-top: 8px; }
+  .hour-table td { padding: 10px 0; border-left: 1px solid #BBBBBB; }
+  .hour-table td.first { border-left: 0; }
+  .hour-table tr.gap td { border-top: 1px solid #BBBBBB; }
+  .h-time { font-size: 22px; color: #555555; }
+  .h-icon { font-size: 22px; font-weight: 600; line-height: 1.6; }
+  .h-temp { font-size: 40px; font-weight: 600; line-height: 1.1; }
+  .h-rain { font-size: 18px; color: #555555; }
+  .msg { font-size: 24px; color: #555555; padding: 20px 0; text-align: center; }
+  .credit { font-size: 12px; color: #666666; margin-top: 10px; }
   .credit a { color: inherit; }
 
-  @media (orientation: portrait) {
-    .board { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; grid-template-areas: "clock" "chess" "hours"; }
-    .hour-row { flex-wrap: wrap; }
-    .hour { flex: 0 0 25%; padding: 8px 0; }
-    .hour:nth-child(5) { border-left: 0; }
+  /* ===== Modern browsers (iPad): colours, cards, emoji icons, fills the screen ===== */
+  @supports (display: grid) {
+    :root {
+      --bg: #D9E9F2; --card: #FFFFFF; --ink: #22325A; --soft: #5A6B8C;
+      --panel: #22325A; --panel-ink: #F4F7FB; --line: #DCE6EE; --sun: #F2B632;
+      --up: #2E8B57; --down: #C0392B;
+    }
+    body.night {
+      --bg: #121933; --card: #1E2848; --ink: #E4EAF6; --soft: #9AA8C6;
+      --panel: #0B1029; --panel-ink: #C9D2E6; --line: #2D3961;
+      --up: #6FCF97; --down: #F28B82;
+    }
+    html, body { height: 100%; }
+    body { background: var(--bg); color: var(--ink); overflow: hidden; user-select: none; }
+    .board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr;
+      grid-template-areas: "clock chess" "hours hours";
+      gap: 16px;
+      height: 100vh;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    .card { background: var(--card); border: 0; border-radius: 20px; padding: 20px 24px; box-sizing: border-box; }
+    .clock { grid-area: clock; background: var(--panel); color: var(--panel-ink); display: flex; flex-direction: column; justify-content: center; }
+    .time { font-size: 128px; font-variant-numeric: tabular-nums; }
+    .secs { color: inherit; opacity: 0.6; }
+    .countdowns, .countdowns b { color: inherit; }
+    .countdowns { font-size: 18px; opacity: 0.8; }
+    .chess { grid-area: chess; display: flex; flex-direction: column; justify-content: center; }
+    .label, .m-month, .note, .h-time, .h-rain, .msg, .credit { color: var(--soft); }
+    .months td, .hour-table td { border-color: var(--line); }
+    .months { border-top: 2px solid var(--line); }
+    .hours { grid-area: hours; display: flex; flex-direction: column; }
+    #hourRow { flex: 1; display: flex; }
+    .hour-table { height: 100%; }
+    .hour-table td { vertical-align: middle; }
+    .h-icon { font-size: 52px; font-weight: 400; line-height: 1.2; }
+    .wx-tip { display: inline-block; background: var(--sun); color: #2A2208; border-radius: 999px; padding: 4px 16px; font-weight: 400; }
+    .wx-tip:empty { display: none; }
+    .up { color: var(--up); }
+    .down { color: var(--down); }
+
+    @media (orientation: portrait) {
+      .board { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; grid-template-areas: "clock" "chess" "hours"; }
+      .h-icon { font-size: 44px; }
+    }
   }
 </style>
 </head>
@@ -128,19 +128,23 @@
   </section>
 
   <section class="card chess">
-    <p class="label">ECF rapid rating</p>
-    <p id="chessName" class="chess-name">Loading…</p>
-    <p class="chess-now"><span id="chessNow"></span><span id="chessChange" class="chess-change"></span></p>
+    <table class="chess-top"><tr>
+      <td>
+        <p class="label">ECF rapid rating</p>
+        <p id="chessName" class="chess-name">Loading…</p>
+      </td>
+      <td class="right"><span id="chessNow" class="chess-now"></span><span id="chessChange" class="chess-change"></span></td>
+    </tr></table>
     <div id="months" class="months"></div>
     <p id="chessNote" class="note"></p>
   </section>
 
   <section class="card hours">
-    <div class="hours-head">
-      <p class="label" id="hoursTitle">Next 8 hours</p>
-      <p id="wxTip" class="wx-tip"></p>
-    </div>
-    <div id="hourRow" class="hour-row"><p class="msg">Loading the weather…</p></div>
+    <table class="hours-head"><tr>
+      <td><p class="label" id="hoursTitle">Next 8 hours</p></td>
+      <td class="right"><p id="wxTip" class="wx-tip"></p></td>
+    </tr></table>
+    <div id="hourRow"><p class="msg">Loading the weather…</p></div>
     <p class="credit">Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> · Ratings from the <a href="https://rating.englishchess.org.uk/">English Chess Federation</a></p>
   </section>
 </main>
@@ -154,8 +158,8 @@
     place: 'Westminster',
     latitude: 51.4975,
     longitude: -0.1357,
-    hours: 8,           // hourly forecast columns
-    nightFrom: 19,      // dark theme from 7pm
+    hours: 8,           // hourly forecast slots
+    nightFrom: 19,      // dark theme from 7pm (iPad only)
     nightUntil: 7       // until 7am
   };
 
@@ -183,27 +187,35 @@
   ];
   /* =============================== */
 
+  // Modern browsers get emoji and colour themes; older ones (Kindle) get words.
+  var MODERN = !!(window.CSS && CSS.supports && CSS.supports('display', 'grid'));
+
   var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var lastWeather = null;
 
   function $(id) { return document.getElementById(id); }
   function pad(n) { return n < 10 ? '0' + n : String(n); }
+  function portrait() { return (window.innerHeight || 0) > (window.innerWidth || 0); }
 
   function getJSON(url, ok, fail) {
     var xhr = new XMLHttpRequest();
     var done = false;
     function bad() { if (!done) { done = true; fail(); } }
     xhr.open('GET', url, true);
-    xhr.timeout = 15000;
-    xhr.onload = function () {
-      if (done) { return; }
+    try { xhr.timeout = 15000; } catch (e) {}
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4 || done) { return; }
       if (xhr.status === 200) {
-        try { var data = JSON.parse(xhr.responseText); done = true; ok(data); return; } catch (e) {}
+        var data = null;
+        try { data = JSON.parse(xhr.responseText); } catch (e) {}
+        if (data) { done = true; ok(data); return; }
       }
       bad();
     };
     xhr.onerror = bad;
     xhr.ontimeout = bad;
+    setTimeout(bad, 20000);
     xhr.send();
   }
 
@@ -211,11 +223,13 @@
   function tick() {
     var d = new Date();
     var h = d.getHours();
-    $('time').textContent = pad(h) + ':' + pad(d.getMinutes());
-    $('secs').textContent = pad(d.getSeconds());
-    $('date').textContent = DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
-    var theme = (h >= CONFIG.nightFrom || h < CONFIG.nightUntil) ? 'night' : 'day';
-    if (document.body.className !== theme) { document.body.className = theme; }
+    $('time').innerHTML = pad(h) + ':' + pad(d.getMinutes());
+    $('secs').innerHTML = pad(d.getSeconds());
+    $('date').innerHTML = DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+    if (MODERN) {
+      var theme = (h >= CONFIG.nightFrom || h < CONFIG.nightUntil) ? 'night' : 'day';
+      if (document.body.className !== theme) { document.body.className = theme; }
+    }
   }
 
   /* ---------- Holiday countdowns ---------- */
@@ -229,7 +243,7 @@
         var b = list[j];
         var days = Math.round((new Date(b[1], b[2] - 1, b[3]).getTime() - today) / 86400000);
         if (days >= 0) {
-          var when = days === 0 ? 'starts today 🎉' : days === 1 ? 'tomorrow' : 'in ' + days + ' days';
+          var when = days === 0 ? 'starts today!' : days === 1 ? 'tomorrow' : 'in ' + days + ' days';
           html += '<p><b>' + HOLIDAYS[i].who + '</b> · ' + b[0] + ' ' + when + '</p>';
           break;
         }
@@ -240,17 +254,19 @@
 
   /* ---------- Weather ---------- */
   function icon(code, isDay) {
-    if (code === 0) { return isDay ? '☀️' : '🌙'; }
-    if (code === 1 || code === 2) { return isDay ? '⛅' : '☁️'; }
-    if (code === 3) { return '☁️'; }
-    if (code === 45 || code === 48) { return '🌫️'; }
-    if (code >= 51 && code <= 57) { return '🌦️'; }
-    if (code >= 61 && code <= 67) { return '🌧️'; }
-    if (code >= 71 && code <= 77) { return '❄️'; }
-    if (code >= 80 && code <= 82) { return '🌦️'; }
-    if (code === 85 || code === 86) { return '🌨️'; }
-    if (code >= 95) { return '⛈️'; }
-    return '🌡️';
+    var e, w;
+    if (code === 0) { e = isDay ? '☀️' : '🌙'; w = isDay ? 'Sunny' : 'Clear'; }
+    else if (code === 1 || code === 2) { e = isDay ? '⛅' : '☁️'; w = 'Some cloud'; }
+    else if (code === 3) { e = '☁️'; w = 'Cloudy'; }
+    else if (code === 45 || code === 48) { e = '🌫️'; w = 'Fog'; }
+    else if (code >= 51 && code <= 57) { e = '🌦️'; w = 'Drizzle'; }
+    else if (code >= 61 && code <= 67) { e = '🌧️'; w = 'Rain'; }
+    else if (code >= 71 && code <= 77) { e = '❄️'; w = 'Snow'; }
+    else if (code >= 80 && code <= 82) { e = '🌦️'; w = 'Showers'; }
+    else if (code === 85 || code === 86) { e = '🌨️'; w = 'Snow'; }
+    else if (code >= 95) { e = '⛈️'; w = 'Storm'; }
+    else { e = '🌡️'; w = ''; }
+    return MODERN ? e : w;
   }
 
   function tipFor(maxRain, minTemp, maxTemp) {
@@ -263,12 +279,11 @@
 
   function showWeather(data) {
     var hr = data.hourly;
-    // First hourly slot after the current hour (times are London local, e.g. "2026-11-21T18:00")
     var nowHour = data.current.time.slice(0, 13);
     var start = 0;
     while (start < hr.time.length && hr.time[start].slice(0, 13) <= nowHour) { start++; }
 
-    var html = '';
+    var cells = [];
     var maxRain = 0, minT = 99, maxT = -99;
     for (var i = start; i < start + CONFIG.hours && i < hr.time.length; i++) {
       var t = Math.round(hr.temperature_2m[i]);
@@ -276,16 +291,26 @@
       if (rain > maxRain) { maxRain = rain; }
       if (t < minT) { minT = t; }
       if (t > maxT) { maxT = t; }
-      html += '<div class="hour">' +
+      cells.push(
         '<p class="h-time">' + hr.time[i].slice(11, 16) + '</p>' +
         '<p class="h-icon">' + icon(hr.weather_code[i], hr.is_day[i] === 1) + '</p>' +
         '<p class="h-temp">' + t + '°</p>' +
-        '<p class="h-rain">💧 ' + rain + '%</p>' +
-        '</div>';
+        '<p class="h-rain">' + (MODERN ? '💧 ' : '') + rain + '%' + (MODERN ? '' : ' rain') + '</p>');
     }
-    $('hourRow').innerHTML = html;
-    $('hoursTitle').textContent = 'Next ' + CONFIG.hours + ' hours in ' + CONFIG.place + ' · now ' + Math.round(data.current.temperature_2m) + '°';
-    $('wxTip').textContent = tipFor(maxRain, minT, maxT);
+
+    // Portrait: 2 rows of 4. Landscape: 1 row of 8.
+    var perRow = portrait() ? Math.ceil(cells.length / 2) : cells.length;
+    var html = '<table class="hour-table">';
+    for (var r = 0; r < cells.length; r += perRow) {
+      html += '<tr' + (r > 0 ? ' class="gap"' : '') + '>';
+      for (var c = r; c < r + perRow; c++) {
+        html += '<td' + (c === r ? ' class="first"' : '') + '>' + (cells[c] || '') + '</td>';
+      }
+      html += '</tr>';
+    }
+    $('hourRow').innerHTML = html + '</table>';
+    $('hoursTitle').innerHTML = 'Next ' + CONFIG.hours + ' hours · ' + CONFIG.place + ' · now ' + Math.round(data.current.temperature_2m) + '°';
+    $('wxTip').innerHTML = tipFor(maxRain, minT, maxT);
   }
 
   function loadWeather() {
@@ -295,11 +320,12 @@
       '&hourly=temperature_2m,weather_code,precipitation_probability,is_day' +
       '&timezone=Europe%2FLondon&forecast_days=2';
     getJSON(url, function (data) {
+      lastWeather = data;
       showWeather(data);
       setTimeout(loadWeather, 15 * 60 * 1000);
     }, function () {
-      $('hourRow').innerHTML = '<p class="msg">📡 Weather unavailable. Trying again in 5 minutes.</p>';
-      $('wxTip').textContent = '';
+      $('hourRow').innerHTML = '<p class="msg">Weather unavailable. Trying again in 5 minutes.</p>';
+      $('wxTip').innerHTML = '';
       setTimeout(loadWeather, 5 * 60 * 1000);
     });
   }
@@ -309,28 +335,28 @@
 
   function showChess(data) {
     var r = data.rapid;
-    $('chessName').textContent = data.name;
-    $('chessNow').textContent = num(r[0].rating);
+    $('chessName').innerHTML = data.name;
+    $('chessNow').innerHTML = num(r[0].rating);
     if (r.length > 1) {
       var diff = num(r[0].rating) - num(r[1].rating);
       var el = $('chessChange');
-      el.textContent = diff > 0 ? '▲ ' + diff : diff < 0 ? '▼ ' + (-diff) : '=';
+      el.innerHTML = diff > 0 ? '▲ ' + diff : diff < 0 ? '▼ ' + (-diff) : '=';
       el.className = 'chess-change ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : '');
     }
-    var html = '';
+    var html = '<table><tr>';
     for (var i = r.length - 1; i >= 0; i--) {
-      html += '<div class="month"><b>' + num(r[i].rating) + '</b><span>' + r[i].month + '</span></div>';
+      html += '<td' + (i === r.length - 1 ? ' class="first"' : '') + '><p class="m-rating">' + num(r[i].rating) + '</p><p class="m-month">' + r[i].month + '</p></td>';
     }
-    $('months').innerHTML = html;
-    $('chessNote').textContent = 'Checked ' + data.updated;
+    $('months').innerHTML = html + '</tr></table>';
+    $('chessNote').innerHTML = 'Checked ' + data.updated;
   }
 
   function loadChess() {
-    getJSON('ecf.json?t=' + Date.now(), function (data) {
+    getJSON('ecf.json?t=' + new Date().getTime(), function (data) {
       showChess(data);
       setTimeout(loadChess, 6 * 60 * 60 * 1000);
     }, function () {
-      $('chessName').textContent = 'Rating unavailable';
+      $('chessName').innerHTML = 'Rating unavailable';
       setTimeout(loadChess, 30 * 60 * 1000);
     });
   }
@@ -341,6 +367,9 @@
     var next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (now.getHours() >= 3 ? 1 : 0), 3, 0, 5);
     setTimeout(function () { window.location.reload(); }, next.getTime() - now.getTime());
   }
+
+  // Redraw the forecast grid when the screen is turned
+  window.onresize = function () { if (lastWeather) { showWeather(lastWeather); } };
 
   tick();
   setInterval(tick, 1000);
