@@ -70,6 +70,9 @@
   .time { font-size: 128px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
   .secs { font-size: 48px; opacity: 0.6; margin-left: 6px; }
   .date { font-size: 30px; margin-top: 12px; opacity: 0.85; }
+  .countdowns { margin-top: 16px; font-size: 18px; opacity: 0.8; }
+  .countdowns p { margin-top: 4px; }
+  .countdowns b { font-weight: 600; }
 
   /* Chess */
   .chess { grid-area: chess; display: flex; flex-direction: column; justify-content: center; }
@@ -121,6 +124,7 @@
   <section class="card clock">
     <p class="time"><span id="time">--:--</span><span id="secs" class="secs"></span></p>
     <p id="date" class="date"></p>
+    <div id="countdowns" class="countdowns"></div>
   </section>
 
   <section class="card chess">
@@ -154,6 +158,24 @@
     nightFrom: 19,      // dark theme from 7pm
     nightUntil: 7       // until 7am
   };
+
+  /* Holiday countdowns. Each date is the first day off (year, month 1-12, day). */
+  var HOLIDAYS = [
+    { who: 'Louis', breaks: [
+      ['Day of Play', 2026, 11, 23],
+      ['Christmas holiday', 2026, 12, 12],
+      ['Half term', 2027, 2, 13],
+      ['Easter holiday', 2027, 3, 25],
+      ['Bank holiday', 2027, 5, 3],
+      ['Half term', 2027, 5, 29],
+      ['Summer holiday', 2027, 7, 8],
+      ['Half term', 2027, 10, 14],
+      ['Christmas holiday', 2027, 12, 11]
+    ] },
+    { who: 'Leo', breaks: [
+      // Add the nursery's dates here, e.g. ['Christmas closure', 2026, 12, 21]
+    ] }
+  ];
   /* =============================== */
 
   var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -189,6 +211,26 @@
     $('date').textContent = DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
     var theme = (h >= CONFIG.nightFrom || h < CONFIG.nightUntil) ? 'night' : 'day';
     if (document.body.className !== theme) { document.body.className = theme; }
+  }
+
+  /* ---------- Holiday countdowns ---------- */
+  function countdowns() {
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    var html = '';
+    for (var i = 0; i < HOLIDAYS.length; i++) {
+      var list = HOLIDAYS[i].breaks;
+      for (var j = 0; j < list.length; j++) {
+        var b = list[j];
+        var days = Math.round((new Date(b[1], b[2] - 1, b[3]).getTime() - today) / 86400000);
+        if (days >= 0) {
+          var when = days === 0 ? 'starts today 🎉' : days === 1 ? 'tomorrow' : 'in ' + days + ' days';
+          html += '<p><b>' + HOLIDAYS[i].who + '</b> · ' + b[0] + ' ' + when + '</p>';
+          break;
+        }
+      }
+    }
+    $('countdowns').innerHTML = html;
   }
 
   /* ---------- Weather ---------- */
@@ -297,6 +339,8 @@
 
   tick();
   setInterval(tick, 1000);
+  countdowns();
+  setInterval(countdowns, 10 * 60 * 1000);
   loadWeather();
   loadChess();
   scheduleReload();
