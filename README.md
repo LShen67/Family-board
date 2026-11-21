@@ -14,6 +14,8 @@ The page is plain HTML, CSS and older-style JavaScript, so it runs in Safari on 
 | File | What it is |
 | --- | --- |
 | `index.html` | The board itself (this is the home page of the site) |
+| `reminders.json` | Important dates. Shown on the board and sent as GitHub reminders |
+| `scripts/remind.py` / `.github/workflows/reminders.yml` | Daily job (07:03 UTC) that opens a GitHub issue when a date is due |
 | `ecf.json` | Latest ECF rapid ratings, read by the board |
 | `scripts/update_ecf.py` | Fetches the ratings from the ECF website |
 | `.github/workflows/ecf.yml` | Runs that script every day at 06:17 UTC |
@@ -32,6 +34,20 @@ var CONFIG = {
   nightUntil: 7           // dark theme ends
 };
 ```
+
+## Important-date reminders
+
+Edit `reminders.json`. Each entry:
+
+```json
+{ "title": "Dentist", "date": "2027-01-15", "remind_days": 3 }
+{ "title": "Grandma's birthday", "date": "03-14", "yearly": true, "remind_days": 7 }
+```
+
+- `date`: `YYYY-MM-DD` for a one-off date, or `MM-DD` with `"yearly": true` for every year.
+- `remind_days`: how many days before to start reminding (default 7).
+- The board shows the next 3 dates within 60 days, in bold once inside the reminder window.
+- Every morning a GitHub job opens an issue labelled `reminder` when a date is `remind_days` away, the day before and on the day. GitHub notifies you by email or in the GitHub app (depending on your notification settings).
 
 ## Publishing with GitHub Pages
 

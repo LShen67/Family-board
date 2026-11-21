@@ -1,0 +1,16 @@
+name: Important-date reminders
+on:
+  schedule:
+    - cron: "3 7 * * *"   # every day at 07:03 UTC
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python scripts/remind.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

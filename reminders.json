@@ -1,0 +1,4 @@
+[
+  { "title": "Christmas Day", "date": "12-25", "yearly": true, "remind_days": 7 },
+  { "title": "New Year's Day", "date": "01-01", "yearly": true, "remind_days": 3 }
+]

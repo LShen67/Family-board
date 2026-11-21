@@ -37,6 +37,8 @@
   .date { font-size: 30px; margin-top: 8px; }
   .countdowns { margin-top: 12px; font-size: 20px; color: #444444; }
   .countdowns p { margin-top: 4px; }
+  .reminders { margin-top: 6px; }
+  .reminders .soon { font-weight: 600; }
   .countdowns b { font-weight: 600; color: #111111; }
   .stats { margin-top: 14px; }
   .stats td { border-top: 1px solid #BBBBBB; padding-top: 8px; }
@@ -130,6 +132,7 @@
     <p class="time"><span id="time">--:--</span></p>
     <p id="date" class="date"></p>
     <div id="countdowns" class="countdowns"></div>
+    <div id="reminders" class="countdowns reminders"></div>
     <table class="stats"><tr>
       <td style="width:36%"><p class="s-label">Digs</p><p id="digs" class="s-value"></p></td>
       <td class="first-not"><p class="s-label">Bank account</p><p id="bank" class="s-value"></p></td>
@@ -366,6 +369,48 @@
     $('chessNote').innerHTML = 'Checked ' + data.updated;
   }
 
+  /* ---------- Important-date reminders (edit reminders.json) ---------- */
+  var REMINDER_WINDOW = 60;   // show dates coming up within this many days
+  var reminderList = [];
+
+  function daysUntil(item, today) {
+    var p = item.date.split('-');
+    var y, m, d;
+    if (p.length === 3) { y = +p[0]; m = +p[1]; d = +p[2]; } else { m = +p[0]; d = +p[1]; y = new Date(today).getFullYear(); }
+    var t = new Date(y, m - 1, d).getTime();
+    if (item.yearly && t < today) { t = new Date(y + 1, m - 1, d).getTime(); }
+    return Math.round((t - today) / 86400000);
+  }
+
+  function showReminders() {
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    var up = [];
+    for (var i = 0; i < reminderList.length; i++) {
+      var days = daysUntil(reminderList[i], today);
+      if (days >= 0 && days <= REMINDER_WINDOW) { up.push({ r: reminderList[i], days: days }); }
+    }
+    up.sort(function (a, b) { return a.days - b.days; });
+    var html = '';
+    for (var j = 0; j < up.length && j < 3; j++) {
+      var it = up[j];
+      var soon = it.days <= (it.r.remind_days || 7);
+      var when = it.days === 0 ? 'today!' : it.days === 1 ? 'tomorrow' : 'in ' + it.days + ' days';
+      html += '<p' + (soon ? ' class="soon"' : '') + '>' + (MODERN ? '🔔 ' : '') + it.r.title + ' ' + when + '</p>';
+    }
+    $('reminders').innerHTML = html;
+  }
+
+  function loadReminders() {
+    getJSON('reminders.json?t=' + new Date().getTime(), function (data) {
+      reminderList = data;
+      showReminders();
+      setTimeout(loadReminders, 6 * 60 * 60 * 1000);
+    }, function () {
+      setTimeout(loadReminders, 30 * 60 * 1000);
+    });
+  }
+
   function loadChess() {
     getJSON('ecf.json?t=' + new Date().getTime(), function (data) {
       showChess(data);
@@ -384,11 +429,11 @@
   }
 
   // Older browsers (Kindle) draw the page very wide and shrink it, so text looks tiny.
-  // Scale everything up so the layout is about 800px wide on screen.
+  // Scale everything up so the layout is about 860px wide on screen.
   function fitOldScreen() {
     if (MODERN) { return; }
     var w = document.documentElement.clientWidth || window.innerWidth || 0;
-    if (w > 800) { document.body.style.zoom = (w / 800).toFixed(2); }
+    if (w > 860) { document.body.style.zoom = (w / 860).toFixed(2); }
   }
   fitOldScreen();
 
@@ -400,7 +445,8 @@
   $('digs').innerHTML = CONFIG.digs;
   $('bank').innerHTML = '£' + CONFIG.bank.toFixed(2);
   countdowns();
-  setInterval(countdowns, 10 * 60 * 1000);
+  setInterval(function () { countdowns(); showReminders(); }, 10 * 60 * 1000);
+  loadReminders();
   loadWeather();
   loadChess();
   scheduleReload();
