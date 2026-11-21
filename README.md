@@ -2,8 +2,9 @@
 
 A simple always-on kitchen display for an old iPad mini 2. It shows:
 
-- an analogue clock, the digital time, the time in words and the date
-- the current weather and today's forecast for Westminster, London, with a short tip (umbrella, coat and so on)
+- a large digital clock and the date
+- an hour-by-hour forecast for the next 8 hours in Westminster, London, with a short tip (umbrella, coat and so on)
+- Louis Shen's ECF rapid rating for the last three months
 - a darker theme from 7pm to 7am
 
 The page is plain HTML, CSS and older-style JavaScript, so it runs in Safari on iOS 12.5.7, the last version the iPad mini 2 supports.
@@ -13,7 +14,9 @@ The page is plain HTML, CSS and older-style JavaScript, so it runs in Safari on 
 | File | What it is |
 | --- | --- |
 | `index.html` | The board itself (this is the home page of the site) |
-| `index.md` | A short "About" page, published at `/about/` |
+| `ecf.json` | Latest ECF rapid ratings, read by the board |
+| `scripts/update_ecf.py` | Fetches the ratings from the ECF website |
+| `.github/workflows/ecf.yml` | Runs that script every day at 06:17 UTC |
 | `README.md` | This file |
 
 ## Settings
@@ -48,6 +51,7 @@ To leave the board, triple-click the Home button and enter the Guided Access pas
 ## How it keeps itself fresh
 
 - The weather updates every 15 minutes, and retries every 5 minutes if the connection drops.
+- The chess rating is re-read every 6 hours; GitHub refreshes `ecf.json` from the ECF website once a day.
 - The page reloads itself at 3am each day.
 
 ## Privacy
@@ -57,4 +61,5 @@ On GitHub's free plan this repository is public, so anyone can read these files.
 ## Credits
 
 Weather data by [Open-Meteo.com](https://open-meteo.com/), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+Chess ratings from the [English Chess Federation](https://rating.englishchess.org.uk/).
 Font: [Fredoka](https://fonts.google.com/specimen/Fredoka) from Google Fonts.
