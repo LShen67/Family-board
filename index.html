@@ -58,6 +58,8 @@
   .m-rating { font-size: 30px; font-weight: 600; }
   .m-month { font-size: 18px; color: #555555; }
   .note { font-size: 13px; color: #666666; margin-top: 8px; text-align: center; }
+  .upcoming { margin-top: 16px; padding-top: 12px; border-top: 1px solid #BBBBBB; text-align: center; }
+  .upcoming .countdowns { margin-top: 6px; }
 
   .hours-head td { text-align: left; vertical-align: middle; }
   .hours-head td.right { text-align: right; }
@@ -102,10 +104,12 @@
     .clock { grid-area: clock; background: var(--panel); color: var(--panel-ink); display: flex; flex-direction: column; justify-content: center; }
     .time { font-size: 128px; font-variant-numeric: tabular-nums; }
     .countdowns, .countdowns b { color: inherit; }
-    .countdowns { font-size: 18px; opacity: 0.8; }
+    .countdowns { font-size: 20px; opacity: 0.9; }
+    .upcoming { border-color: var(--line); }
+    .stats { margin-top: 28px; }
     .stats td { border-color: rgba(255,255,255,0.25); }
     .s-label { color: inherit; opacity: 0.7; }
-    .chess { grid-area: chess; display: flex; flex-direction: column; justify-content: center; }
+    .chess { grid-area: chess; display: flex; flex-direction: column; justify-content: space-evenly; }
     .label, .m-month, .note, .h-time, .h-rain, .msg, .credit { color: var(--soft); }
     .months td, .hour-table td { border-color: var(--line); }
     .months { border-top: 2px solid var(--line); }
@@ -121,7 +125,12 @@
 
     @media (orientation: portrait) {
       .board { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; grid-template-areas: "clock" "chess" "hours"; }
-      .h-icon { font-size: 44px; }
+      .h-icon { font-size: 36px; }
+      .time { font-size: 104px; }
+      .s-value { font-size: 56px; }
+      .stats { margin-top: 16px; }
+      .hour-table td { padding: 4px 0; }
+      .h-temp { font-size: 34px; }
     }
   }
 </style>
@@ -131,8 +140,6 @@
   <section class="card clock">
     <p class="time"><span id="time">--:--</span></p>
     <p id="date" class="date"></p>
-    <div id="countdowns" class="countdowns"></div>
-    <div id="reminders" class="countdowns reminders"></div>
     <table class="stats"><tr>
       <td style="width:36%"><p class="s-label">Digs</p><p id="digs" class="s-value"></p></td>
       <td class="first-not"><p class="s-label">Bank account</p><p id="bank" class="s-value"></p></td>
@@ -145,8 +152,11 @@
       <p class="chess-big"><span id="chessNow" class="chess-now"></span><span id="chessChange" class="chess-change"></span></p>
       <p id="chessMonth" class="m-month"></p>
     </div>
-    <div id="months" class="months"></div>
-    <p id="chessNote" class="note"></p>
+    <div class="upcoming">
+      <p class="label">Coming up</p>
+      <div id="countdowns" class="countdowns"></div>
+      <div id="reminders" class="countdowns reminders"></div>
+    </div>
   </section>
 
   <section class="card hours">
@@ -353,20 +363,13 @@
     var r = data.rapid;
     $('chessName').innerHTML = data.name;
     $('chessNow').innerHTML = num(r[0].rating);
-    $('chessMonth').innerHTML = r[0].month;
+    $('chessMonth').innerHTML = r[0].month + (r.length > 1 ? ' · last month ' + num(r[1].rating) : '');
     if (r.length > 1) {
       var diff = num(r[0].rating) - num(r[1].rating);
       var el = $('chessChange');
       el.innerHTML = diff > 0 ? '▲ ' + diff : diff < 0 ? '▼ ' + (-diff) : '=';
       el.className = 'chess-change ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : '');
     }
-    var html = '<table><tr>';
-    // Current month is shown large above; list the previous months here
-    for (var i = r.length - 1; i >= 1; i--) {
-      html += '<td' + (i === r.length - 1 ? ' class="first"' : '') + '><p class="m-rating">' + num(r[i].rating) + '</p><p class="m-month">' + r[i].month + '</p></td>';
-    }
-    $('months').innerHTML = html + '</tr></table>';
-    $('chessNote').innerHTML = 'Checked ' + data.updated;
   }
 
   /* ---------- Important-date reminders (edit reminders.json) ---------- */
