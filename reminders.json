@@ -1,5 +1,5 @@
 [
-  { "title": "Dad's birthday", "date": "2026-12-31", "repeat": "yearly", "remind_days": 1 },
+  { "title": "Grandad's birthday", "date": "2026-12-31", "repeat": "yearly", "remind_days": 1 },
   { "title": "Washing machine clean", "date": "2027-01-18", "repeat": "quarterly", "remind_days": 0 },
   { "title": "MOT + service (book now)", "date": "2027-02-13", "repeat": "yearly", "remind_days": 77 },
   { "title": "Dishwasher clean", "date": "2027-02-18", "repeat": "quarterly", "remind_days": 0 },
@@ -8,7 +8,7 @@
   { "title": "Your birthday", "date": "2027-06-07", "repeat": "yearly", "remind_days": 0 },
   { "title": "吴韬", "date": "2027-06-09", "repeat": "yearly", "remind_days": 1 },
   { "title": "Matthias Qian", "date": "2027-06-28", "repeat": "yearly", "remind_days": 1 },
-  { "title": "Mum's birthday", "date": "2027-08-04", "repeat": "yearly", "remind_days": 7 },
+  { "title": "Grandma's birthday", "date": "2027-08-04", "repeat": "yearly", "remind_days": 7 },
   { "title": "Motor insurance check", "date": "2027-08-04", "repeat": "yearly", "remind_days": 7 },
   { "title": "Motor insurance expires (renew)", "date": "2027-08-31", "repeat": "yearly", "remind_days": 7 },
   { "title": "Louis's birthday", "date": "2027-09-08", "repeat": "yearly", "remind_days": 14 },
