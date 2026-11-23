@@ -38,7 +38,7 @@
   .countdowns { margin-top: 12px; font-size: 20px; color: #444444; }
   .countdowns p { margin-top: 4px; }
   .reminders { margin-top: 6px; }
-  .reminders .soon { font-weight: 600; }
+  .countdowns .today { font-weight: 600; color: #000000; }
   .countdowns b { font-weight: 600; color: #111111; }
   .stats { margin-top: 14px; }
   .stats td { border-top: 1px solid #BBBBBB; padding-top: 8px; }
@@ -106,6 +106,7 @@
     .countdowns, .countdowns b { color: inherit; }
     .countdowns { font-size: 20px; opacity: 0.9; }
     .upcoming { border-color: var(--line); }
+    .countdowns .today { color: inherit; opacity: 1; }
     #sales { font-size: 16px; }
     #sales p { margin-top: 2px; }
     .stats { margin-top: 28px; }
@@ -274,7 +275,7 @@
         var days = Math.round((new Date(b[1], b[2] - 1, b[3]).getTime() - today) / 86400000);
         if (days >= 0) {
           var when = days === 0 ? 'starts today!' : days === 1 ? 'tomorrow' : 'in ' + days + ' days';
-          html += '<p><b>' + HOLIDAYS[i].who + '</b> · ' + b[0] + ' ' + when + '</p>';
+          html += '<p' + (days === 0 ? ' class="today"' : '') + '><b>' + HOLIDAYS[i].who + '</b> · ' + b[0] + ' ' + when + '</p>';
           break;
         }
       }
@@ -407,10 +408,9 @@
     var html = '';
     for (var j = 0; j < up.length && j < 3; j++) {
       var it = up[j];
-      var lead = it.r.remind_days === undefined ? 7 : it.r.remind_days;
-      var soon = it.days <= Math.max(lead, 1);
+      var isToday = it.days === 0;
       var when = it.days === 0 ? 'today!' : it.days === 1 ? 'tomorrow' : 'in ' + it.days + ' days';
-      html += '<p' + (soon ? ' class="soon"' : '') + '>' + (MODERN ? '🔔 ' : '') + it.r.title + ' ' + when + '</p>';
+      html += '<p' + (isToday ? ' class="today"' : '') + '>' + (MODERN ? '🔔 ' : '') + it.r.title + ' ' + when + '</p>';
     }
     $('reminders').innerHTML = html;
   }

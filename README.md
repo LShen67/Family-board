@@ -48,7 +48,7 @@ Edit `reminders.json`. Each entry:
 - `date`: the first (or next) date, `YYYY-MM-DD`.
 - `repeat`: `yearly` (default), `quarterly` (every 3 months) or `none`.
 - `remind_days`: days before to remind (0 = on the day only; default 7).
-- The board shows the next 3 dates (within 60 days, or within `remind_days` if longer), in bold once the reminder is due.
+- The board shows the next 3 dates (within 60 days, or within `remind_days` if longer). Anything happening today is shown in bold.
 - Every morning a GitHub job opens an issue labelled `reminder` when a date is `remind_days` away and again on the day. GitHub notifies you by email or in the GitHub app (depending on your notification settings).
 
 ## Publishing with GitHub Pages
