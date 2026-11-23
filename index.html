@@ -106,6 +106,8 @@
     .countdowns, .countdowns b { color: inherit; }
     .countdowns { font-size: 20px; opacity: 0.9; }
     .upcoming { border-color: var(--line); }
+    #sales { font-size: 16px; }
+    #sales p { margin-top: 2px; }
     .stats { margin-top: 28px; }
     .stats td { border-color: rgba(255,255,255,0.25); }
     .s-label { color: inherit; opacity: 0.7; }
@@ -439,7 +441,7 @@
       if (age < 0 || age > 1) { continue; }   // only sales found in the last 2 days
       var sold = ymd(u.sold);
       var extra = (u.rooms ? ' · ' + u.rooms + ' rooms' : '') + (u.area ? ' · ' + u.area + ' m²' : '');
-      html += '<p><b>' + u.place + '</b> · ' + u.address + ' sold ' + money(u.price) + ' (' + MON[sold.getMonth()] + ' ' + sold.getFullYear() + ')' + extra + '</p>';
+      html += '<p><b>' + u.place + '</b> · ' + u.address.split(',')[0] + ' sold ' + money(u.price) + ' (' + MON[sold.getMonth()] + ' ' + sold.getFullYear() + ')' + extra + '</p>';
     }
     $('sales').innerHTML = html;
     $('salesBox').style.display = html ? 'block' : 'none';
