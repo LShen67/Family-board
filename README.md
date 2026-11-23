@@ -4,7 +4,7 @@ A simple always-on kitchen display for an old iPad mini 2. It shows:
 
 - a large digital clock and the date
 - a forecast every 3 hours for the next 24 hours (8 boxes) in Westminster, London, with a short tip (umbrella, coat and so on)
-- Louis Shen's ECF rapid rating for the last three months
+- Louis Shen's ECF and FIDE rapid ratings (current month and change from last month)
 - a darker theme from 7pm to 7am
 
 The page is plain HTML, CSS and older-style JavaScript, so it runs in Safari on iOS 12.5.7, the last version the iPad mini 2 supports.
@@ -17,6 +17,7 @@ The page is plain HTML, CSS and older-style JavaScript, so it runs in Safari on 
 | `reminders.json` | Important dates. Shown on the board and sent as GitHub reminders |
 | `scripts/remind.py` / `.github/workflows/reminders.yml` | Daily job (07:03 UTC) that opens a GitHub issue when a date is due |
 | `sales.json` / `scripts/update_sales.py` / `.github/workflows/sales.yml` | Daily check (06:41 UTC) of HM Land Registry sold prices for Maunsel Street SW1P, Nottingham One NG1 and Cross Street SW13 0PS. New sales show on the board for 2 days, with habitable rooms and floor area from the EPC register (needs the `EPC_API_KEY` secret). Nottingham One alerts only for flats with 4+ habitable rooms (about 3 bedrooms) |
+| `fide.json` / `scripts/update_fide.py` | Latest FIDE rapid ratings (from ratings.fide.com), refreshed by the same daily job |
 | `ecf.json` | Latest ECF rapid ratings, read by the board |
 | `scripts/update_ecf.py` | Fetches the ratings from the ECF website |
 | `.github/workflows/ecf.yml` | Runs that script every day at 06:17 UTC |

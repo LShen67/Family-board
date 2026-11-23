@@ -50,7 +50,11 @@
   .chess-top { text-align: center; }
   .chess-big { margin-top: 6px; }
   .chess-name { font-size: 30px; font-weight: 600; margin-top: 4px; }
-  .chess-now { font-size: 80px; font-weight: 600; line-height: 1; }
+  .chess-now { font-size: 64px; font-weight: 600; line-height: 1; }
+  .ratings { margin-top: 8px; }
+  .ratings td.first-not { border-left: 1px solid #BBBBBB; }
+  .r-label { font-size: 18px; font-weight: 600; color: #555555; }
+  .r-label span { font-weight: 400; }
   .chess-change { font-size: 24px; margin-left: 8px; }
   .months { margin-top: 10px; }
   .months td { padding-top: 6px; border-left: 1px solid #BBBBBB; }
@@ -114,7 +118,8 @@
     .s-label { color: inherit; opacity: 0.7; }
     .chess { grid-area: chess; display: flex; flex-direction: column; justify-content: space-evenly; }
     .label, .m-month, .note, .h-time, .h-rain, .msg, .credit { color: var(--soft); }
-    .months td, .hour-table td { border-color: var(--line); }
+    .months td, .hour-table td, .ratings td { border-color: var(--line); }
+    .r-label { color: var(--soft); }
     .months { border-top: 2px solid var(--line); }
     .hours { grid-area: hours; display: flex; flex-direction: column; }
     #hourRow { flex: 1; display: flex; }
@@ -151,9 +156,13 @@
 
   <section class="card chess">
     <div class="chess-top">
-      <p class="label"><span id="chessName">Loading…</span> · ECF rapid rating</p>
-      <p class="chess-big"><span id="chessNow" class="chess-now"></span><span id="chessChange" class="chess-change"></span></p>
-      <p id="chessMonth" class="m-month"></p>
+      <p class="label"><span id="chessName">Louis Shen</span> · Rapid chess ratings</p>
+      <table class="ratings"><tr>
+        <td><p class="r-label">ECF <span id="ecfMonth"></span></p>
+          <p class="chess-big"><span id="ecfNow" class="chess-now">–</span><span id="ecfChange" class="chess-change"></span></p></td>
+        <td class="first-not"><p class="r-label">FIDE <span id="fideMonth"></span></p>
+          <p class="chess-big"><span id="fideNow" class="chess-now">–</span><span id="fideChange" class="chess-change"></span></p></td>
+      </tr></table>
     </div>
     <div class="upcoming">
       <p class="label">Coming up</p>
@@ -172,7 +181,7 @@
       <td class="right"><p id="wxTip" class="wx-tip"></p></td>
     </tr></table>
     <div id="hourRow"><p class="msg">Loading the weather…</p></div>
-    <p class="credit">Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> · Ratings from the <a href="https://rating.englishchess.org.uk/">English Chess Federation</a> · House prices: HM Land Registry data © Crown copyright (OGL v3.0)</p>
+    <p class="credit">Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> · Ratings from the <a href="https://rating.englishchess.org.uk/">English Chess Federation</a> and <a href="https://ratings.fide.com/">FIDE</a> · House prices: HM Land Registry data © Crown copyright (OGL v3.0)</p>
   </section>
 </main>
 
@@ -363,17 +372,17 @@
     });
   }
 
-  /* ---------- Chess rating (ecf.json is refreshed daily by a GitHub Action) ---------- */
+  /* ---------- Chess ratings (ecf.json and fide.json are refreshed daily by a GitHub Action) ---------- */
   function num(r) { return parseInt(r, 10); }
 
-  function showChess(data) {
+  // Current month's rating and the change from the previous month
+  function showRating(key, data) {
     var r = data.rapid;
-    $('chessName').innerHTML = data.name;
-    $('chessNow').innerHTML = num(r[0].rating);
-    $('chessMonth').innerHTML = r[0].month + (r.length > 1 ? ' · last month ' + num(r[1].rating) : '');
+    $(key + 'Now').innerHTML = num(r[0].rating);
+    $(key + 'Month').innerHTML = '· ' + r[0].month;
+    var el = $(key + 'Change');
     if (r.length > 1) {
       var diff = num(r[0].rating) - num(r[1].rating);
-      var el = $('chessChange');
       el.innerHTML = diff > 0 ? '▲ ' + diff : diff < 0 ? '▼ ' + (-diff) : '=';
       el.className = 'chess-change ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : '');
     }
@@ -456,15 +465,16 @@
     });
   }
 
-  function loadChess() {
-    getJSON('ecf.json?t=' + new Date().getTime(), function (data) {
-      showChess(data);
-      setTimeout(loadChess, 6 * 60 * 60 * 1000);
+  function loadRating(key) {
+    getJSON(key + '.json?t=' + new Date().getTime(), function (data) {
+      showRating(key, data);
+      setTimeout(function () { loadRating(key); }, 6 * 60 * 60 * 1000);
     }, function () {
-      $('chessName').innerHTML = 'Rating unavailable';
-      setTimeout(loadChess, 30 * 60 * 1000);
+      setTimeout(function () { loadRating(key); }, 30 * 60 * 1000);
     });
   }
+
+  function loadChess() { loadRating('ecf'); loadRating('fide'); }
 
   /* ---------- Fresh start at 3am each day ---------- */
   function scheduleReload() {
