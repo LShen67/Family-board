@@ -16,7 +16,7 @@ The page is plain HTML, CSS and older-style JavaScript, so it runs in Safari on 
 | `index.html` | The board itself (this is the home page of the site) |
 | `reminders.json` | Important dates. Shown on the board and sent as GitHub reminders |
 | `scripts/remind.py` / `.github/workflows/reminders.yml` | Daily job (07:03 UTC) that opens a GitHub issue when a date is due |
-| `sales.json` / `scripts/update_sales.py` / `.github/workflows/sales.yml` | Daily check (06:41 UTC) of HM Land Registry sold prices for Maunsel Street SW1P, Nottingham One NG1 and Cross Street SW13 0PS. New sales show on the board for 2 days |
+| `sales.json` / `scripts/update_sales.py` / `.github/workflows/sales.yml` | Daily check (06:41 UTC) of HM Land Registry sold prices for Maunsel Street SW1P, Nottingham One NG1 and Cross Street SW13 0PS. New sales show on the board for 2 days, with habitable rooms and floor area from the EPC register (needs the `EPC_API_KEY` secret). Nottingham One alerts only for flats with 4+ habitable rooms (about 3 bedrooms) |
 | `ecf.json` | Latest ECF rapid ratings, read by the board |
 | `scripts/update_ecf.py` | Fetches the ratings from the ECF website |
 | `.github/workflows/ecf.yml` | Runs that script every day at 06:17 UTC |
@@ -79,6 +79,7 @@ On GitHub's free plan this repository is public, so anyone can read these files.
 ## Credits
 
 Weather data by [Open-Meteo.com](https://open-meteo.com/), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+Room counts: Energy Performance of Buildings Data, MHCLG, [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 House prices: HM Land Registry Price Paid Data, © Crown copyright and database right, [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 Chess ratings from the [English Chess Federation](https://rating.englishchess.org.uk/).
 Font: [Fredoka](https://fonts.google.com/specimen/Fredoka) from Google Fonts.
