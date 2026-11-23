@@ -3,6 +3,11 @@ on:
   schedule:
     - cron: "41 6 * * *"   # every day at 06:41 UTC
   workflow_dispatch:
+    inputs:
+      test_epc:
+        description: "Only test the EPC room lookup (saves nothing)"
+        type: boolean
+        default: false
 permissions:
   contents: write
 jobs:
@@ -10,8 +15,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: python scripts/update_sales.py
+      - name: Test EPC lookup
+        if: ${{ inputs.test_epc }}
+        run: python scripts/update_sales.py --test-epc
+        env:
+          EPC_API_KEY: ${{ secrets.EPC_API_KEY }}
+      - name: Check for new sales
+        if: ${{ !inputs.test_epc }}
+        run: python scripts/update_sales.py
+        env:
+          EPC_API_KEY: ${{ secrets.EPC_API_KEY }}
       - name: Commit if changed
+        if: ${{ !inputs.test_epc }}
         run: |
           git config user.name "family-board-bot"
           git config user.email "family-board-bot@users.noreply.github.com"

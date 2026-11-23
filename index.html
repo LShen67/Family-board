@@ -438,7 +438,8 @@
       var age = Math.round((today - ymd(u.found).getTime()) / 86400000);
       if (age < 0 || age > 1) { continue; }   // only sales found in the last 2 days
       var sold = ymd(u.sold);
-      html += '<p><b>' + u.place + '</b> · ' + u.address + ' sold ' + money(u.price) + ' (' + MON[sold.getMonth()] + ' ' + sold.getFullYear() + ')</p>';
+      var extra = (u.rooms ? ' · ' + u.rooms + ' rooms' : '') + (u.area ? ' · ' + u.area + ' m²' : '');
+      html += '<p><b>' + u.place + '</b> · ' + u.address + ' sold ' + money(u.price) + ' (' + MON[sold.getMonth()] + ' ' + sold.getFullYear() + ')' + extra + '</p>';
     }
     $('sales').innerHTML = html;
     $('salesBox').style.display = html ? 'block' : 'none';

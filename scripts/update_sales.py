@@ -7,6 +7,8 @@ Contains HM Land Registry data © Crown copyright and database right 2026,
 licensed under the Open Government Licence v3.0.
 """
 import json
+import re
+import sys
 import os
 import urllib.parse
 import urllib.request
@@ -28,7 +30,8 @@ WATCH = [
     {"name": "Maunsel Street, SW1P",
      "match": '?a lrcommon:street "MAUNSEL STREET" ; lrcommon:town "LONDON" .'},
     {"name": "Nottingham One, NG1",
-     "match": '?a lrcommon:town "NOTTINGHAM" ; lrcommon:paon ?p . FILTER(CONTAINS(?p, "NOTTINGHAM ONE"))'},
+     "match": '?a lrcommon:town "NOTTINGHAM" ; lrcommon:paon ?p . FILTER(CONTAINS(?p, "NOTTINGHAM ONE"))',
+     "min_rooms": 4},  # 3-bed flat = about 4+ habitable rooms (bedrooms + living room)
     {"name": "Cross Street, SW13 0PS",
      "match": '?a lrcommon:postcode "SW13 0PS" .'},
 ]
@@ -50,6 +53,75 @@ def address(row):
     return (row["saon"].title() + ", " + main) if row.get("saon") else main
 
 
+EPC_API = "https://api.get-energy-performance-data.communities.gov.uk/api"
+EPC_TOKEN = os.environ.get("EPC_API_KEY", "")
+
+
+def epc_get(path, params):
+    url = EPC_API + path + "?" + urllib.parse.urlencode(params)
+    req = urllib.request.Request(url, headers={"Authorization": "Bearer " + EPC_TOKEN,
+                                               "Accept": "application/json",
+                                               "User-Agent": "family-board/1.0"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return json.load(r)
+
+
+def find_key(obj, words):
+    """Search nested certificate JSON for the first key containing all the words."""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if all(w in k.lower() for w in words) and isinstance(v, (int, float, str)) and str(v).strip():
+                return v
+        for v in obj.values():
+            hit = find_key(v, words)
+            if hit is not None:
+                return hit
+    elif isinstance(obj, list):
+        for v in obj:
+            hit = find_key(v, words)
+            if hit is not None:
+                return hit
+    return None
+
+
+def tokens(text):
+    return set(re.findall(r"[a-z]*\d+[a-z]*", (text or "").lower()))
+
+
+def epc_details(row):
+    """Habitable rooms and floor area from the property's latest EPC, or {} if not found."""
+    if not EPC_TOKEN or not row.get("pc"):
+        return {}
+    want = tokens(row.get("saon")) or tokens(row.get("paon"))
+    try:
+        found = epc_get("/domestic/search", {"postcode": row["pc"]}).get("data") or []
+        matches = []
+        for c in found:
+            addr = " ".join(str(c.get(k) or "") for k in ("addressLine1", "addressLine2", "addressLine3"))
+            have = tokens(addr)
+            if want and want <= have and (row.get("saon") or addr.strip().lower().startswith(sorted(want)[0])):
+                matches.append(c)
+        if not matches:
+            return {}
+        latest = sorted(matches, key=lambda c: c.get("registrationDate") or "")[-1]
+        cert = epc_get("/certificate", {"certificate_number": latest["certificateNumber"]}).get("data", {})
+    except Exception as e:  # never let EPC problems stop the price check
+        print("EPC lookup failed for", address(row), "-", type(e).__name__, getattr(e, "code", ""))
+        return {}
+    rooms = find_key(cert, ["habitable"])
+    area = find_key(cert, ["total", "floor", "area"])
+    out = {}
+    try:
+        out["rooms"] = int(float(rooms))
+    except (TypeError, ValueError):
+        pass
+    try:
+        out["area"] = round(float(area))
+    except (TypeError, ValueError):
+        pass
+    return out
+
+
 def main():
     today = date.today()
     path = "sales.json"
@@ -65,8 +137,14 @@ def main():
             seen.add(row["tx"])
             if first_run:
                 continue  # don't announce old sales the first time
-            updates.append({"place": w["name"], "address": address(row), "price": int(row["amount"]),
-                            "sold": row["date"], "found": today.isoformat()})
+            info = epc_details(row)
+            if w.get("min_rooms") and info.get("rooms", 99) < w["min_rooms"]:
+                print("Skipped (too few rooms):", address(row), info)
+                continue
+            u = {"place": w["name"], "address": address(row), "price": int(row["amount"]),
+                 "sold": row["date"], "found": today.isoformat()}
+            u.update(info)
+            updates.append(u)
             print("New sale:", w["name"], address(row), row["amount"], row["date"])
 
     state = {"checked": today.isoformat(), "seen": sorted(seen), "updates": updates}
@@ -75,5 +153,16 @@ def main():
     print("Seen %d sales, %d recent updates" % (len(seen), len(updates)))
 
 
+def test_epc():
+    """Look up the EPC for the most recent sale in each place (no changes saved)."""
+    print("Token present:", bool(EPC_TOKEN))
+    for w in WATCH:
+        for row in query(w["match"])[:3]:
+            print(w["name"], "|", address(row), row.get("pc"), "->", epc_details(row))
+
+
 if __name__ == "__main__":
-    main()
+    if "--test-epc" in sys.argv:
+        test_epc()
+    else:
+        main()
