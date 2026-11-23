@@ -157,6 +157,10 @@
       <div id="countdowns" class="countdowns"></div>
       <div id="reminders" class="countdowns reminders"></div>
     </div>
+    <div id="salesBox" class="upcoming" style="display:none">
+      <p class="label">House sales · new</p>
+      <div id="sales" class="countdowns"></div>
+    </div>
   </section>
 
   <section class="card hours">
@@ -165,7 +169,7 @@
       <td class="right"><p id="wxTip" class="wx-tip"></p></td>
     </tr></table>
     <div id="hourRow"><p class="msg">Loading the weather…</p></div>
-    <p class="credit">Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> · Ratings from the <a href="https://rating.englishchess.org.uk/">English Chess Federation</a></p>
+    <p class="credit">Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> · Ratings from the <a href="https://rating.englishchess.org.uk/">English Chess Federation</a> · House prices: HM Land Registry data © Crown copyright (OGL v3.0)</p>
   </section>
 </main>
 
@@ -419,6 +423,36 @@
     });
   }
 
+  /* ---------- House sales (sales.json is refreshed daily from HM Land Registry) ---------- */
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function money(n) { return '£' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function ymd(str) { var p = str.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+
+  function showSales(data) {
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    var html = '';
+    var list = data.updates || [];
+    for (var i = 0; i < list.length; i++) {
+      var u = list[i];
+      var age = Math.round((today - ymd(u.found).getTime()) / 86400000);
+      if (age < 0 || age > 1) { continue; }   // only sales found in the last 2 days
+      var sold = ymd(u.sold);
+      html += '<p><b>' + u.place + '</b> · ' + u.address + ' sold ' + money(u.price) + ' (' + MON[sold.getMonth()] + ' ' + sold.getFullYear() + ')</p>';
+    }
+    $('sales').innerHTML = html;
+    $('salesBox').style.display = html ? 'block' : 'none';
+  }
+
+  function loadSales() {
+    getJSON('sales.json?t=' + new Date().getTime(), function (data) {
+      showSales(data);
+      setTimeout(loadSales, 3 * 60 * 60 * 1000);
+    }, function () {
+      setTimeout(loadSales, 30 * 60 * 1000);
+    });
+  }
+
   function loadChess() {
     getJSON('ecf.json?t=' + new Date().getTime(), function (data) {
       showChess(data);
@@ -455,6 +489,7 @@
   countdowns();
   setInterval(function () { countdowns(); showReminders(); }, 10 * 60 * 1000);
   loadReminders();
+  loadSales();
   loadWeather();
   loadChess();
   scheduleReload();

@@ -1,0 +1,22 @@
+name: House sale prices
+on:
+  schedule:
+    - cron: "41 6 * * *"   # every day at 06:41 UTC
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python scripts/update_sales.py
+      - name: Commit if changed
+        run: |
+          git config user.name "family-board-bot"
+          git config user.email "family-board-bot@users.noreply.github.com"
+          git add sales.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Update house sales"
+          git pull --rebase origin main
+          git push
